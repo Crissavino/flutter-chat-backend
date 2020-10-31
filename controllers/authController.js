@@ -63,7 +63,7 @@ const loginUsuario = async (req, res = response) => {
 
     res.json({
       ok: true,
-      usuarioDB,
+      usuario: usuarioDB,
       token,
     });
   } catch (error) {
@@ -73,10 +73,6 @@ const loginUsuario = async (req, res = response) => {
       msg: "Hable con el administrador",
     });
   }
-  res.json({
-    ok: true,
-    msg: "login",
-  });
 };
 
 const renewToken = async (req, res = response) => {
@@ -88,7 +84,7 @@ const renewToken = async (req, res = response) => {
 
   res.json({
     ok: true,
-    usuarioDB,
+    usuario: usuarioDB,
     token,
   });
 };
