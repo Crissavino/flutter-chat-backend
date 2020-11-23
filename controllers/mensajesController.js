@@ -1,5 +1,5 @@
 const { response } = require("express");
-const Mensaje = require("../models/mensaje");
+const Mensaje = require("../models/Message");
 const obtenerChat = async (req, res = response) => {
   const myUuid = req.uuid;
   const mensajesDe = req.params.de;

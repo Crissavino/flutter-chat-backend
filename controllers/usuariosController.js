@@ -1,9 +1,9 @@
 const { response } = require("express");
-const Usuario = require("../models/usuario");
+const User = require("../models/User");
 
 const getUsuarios = async (req, res = response) => {
   const desde = Number(req.query.desde) || 0;
-  const usuarios = await Usuario.find({ _id: { $ne: req.uuid } })
+  const usuarios = await User.find({ _id: { $ne: req.uuid } })
     .sort("-online")
     .skip(desde)
     .limit(20);
@@ -14,6 +14,12 @@ const getUsuarios = async (req, res = response) => {
   });
 };
 
+const getAllUsers = async (req, res = response) => {
+  const users = await User.find().populate('chatRooms').populate('devices').populate('player');
+  res.json({ users });
+};
+
 module.exports = {
   getUsuarios,
+  getAllUsers,
 };

@@ -22,8 +22,9 @@ const publicPath = path.resolve(__dirname, "public");
 app.use(express.static(publicPath));
 
 // mis rutas
-app.use("/api/login", require("./routes/auth"));
-app.use("/api/usuarios", require("./routes/usuarios"));
+app.use("/api/auth", require("./routes/auth"));
+app.use("/api/users", require("./routes/usuarios"));
+app.use("/api/chatRooms", require("./routes/chatRooms"));
 app.use("/api/mensajes", require("./routes/mensajes"));
 
 server.listen(process.env.PORT, (err) => {
