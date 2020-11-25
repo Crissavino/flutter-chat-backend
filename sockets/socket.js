@@ -38,9 +38,15 @@ io.on("connection", (client) => {
   });
 
   client.on('chatRoomMessage', async (payload) => {
+    const message = await grabarMensaje(payload);
+
     client.broadcast.to(payload.chatRoom._id).emit('chatRoomMessage', {
       'text': payload.text,
       'de': payload.sender
+    })
+
+    io.to(payload.chatRoom._id).emit('chatRoomMessage-recentChats', {
+      'message': message
     })
   });
 
@@ -55,7 +61,7 @@ io.on("connection", (client) => {
   //     }
   //   }
   //   // TODO grabar mensaje
-  //   // await grabarMensaje(payload);
+  //   await grabarMensaje(payload);
   //
   //   // io.to(payload.de["_id"]).emit("mensaje-personal", payload);
   //   //

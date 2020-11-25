@@ -36,21 +36,32 @@ const grabarMensaje = async (payload) => {
     const messagePlayerRepository = new MongooseMessagePlayerRepository();
     const deviceMessageRepository = new MongooseDeviceMessageRepository();
 
-    const newMessage = await messageRepository.createMessage(senderUser, messageData, chatRoom);
+    const messageData = {
+      time: Date.now(),
+      text: payload.text,
+      isLiked: false,
+      chatRoom: payload.chatRoom,
+      unread: true,
+    }
 
-    for (const user of users) {
-      const player = user.player;
-      const newMessagePlayer = await messagePlayerRepository.createMessagePlayer(senderUser, newMessage, player, chatRoom);
+    const newMessage = await messageRepository.createMessage(payload.sender, messageData, payload.chatRoom);
 
-      for (const device of user.devices) {
+    for (const player of payload.chatRoom.players) {
 
-        const newDeviceMessage = await deviceMessageRepository.createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player);
+      // messageData.unread = payload.sender._id !== player.user._id;
+
+      const newMessagePlayer = await messagePlayerRepository.createMessagePlayer(payload.sender, newMessage, player, payload.chatRoom);
+
+      for (const device of player.user.devices) {
+
+        const newDeviceMessage = await deviceMessageRepository.createDeviceMessage(payload.sender, newMessagePlayer, device, payload.chatRoom, newMessage, player);
 
       }
     }
-    const mensaje = new Message(payload);
-    await mensaje.save();
-    return mensaje;
+
+    console.log(newMessage.messagePlayer)
+
+    return newMessage;
   } catch (error) {
     console.log(error);
     return false;
