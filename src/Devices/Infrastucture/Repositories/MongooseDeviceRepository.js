@@ -24,7 +24,9 @@ const MongooseDeviceRepository = class MongooseDeviceRepository {
                     }
                 },
                 { new: true, useFindAndModify: false },
-            );
+            ).populate({
+                path: 'devices'
+            });
 
             const playerUpdated = await Player.findByIdAndUpdate(
                 player,

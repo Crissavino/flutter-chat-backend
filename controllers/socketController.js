@@ -6,6 +6,9 @@ const {MongooseMessageRepository} = require("../src/Messages/Infrastucture/Repos
 
 const usuarioConectado = async (uuid = "") => {
   const usuario = await User.findById(uuid);
+  if (!usuario) {
+    return;
+  }
   usuario.online = true;
 
   await usuario.save();
@@ -44,24 +47,25 @@ const grabarMensaje = async (payload) => {
       unread: true,
     }
 
-    const newMessage = await messageRepository.createMessage(payload.sender, messageData, payload.chatRoom);
+    let newMessage = await messageRepository.createMessage(payload.sender, messageData, payload.chatRoom);
+
+    let deviceMessage;
 
     for (const player of payload.chatRoom.players) {
 
-      // messageData.unread = payload.sender._id !== player.user._id;
-
-      const newMessagePlayer = await messagePlayerRepository.createMessagePlayer(payload.sender, newMessage, player, payload.chatRoom);
+      const {newMessageUpdated, newMessagePlayer} = await messagePlayerRepository.createMessagePlayer(payload.sender, newMessage, player, payload.chatRoom);
 
       for (const device of player.user.devices) {
 
-        const newDeviceMessage = await deviceMessageRepository.createDeviceMessage(payload.sender, newMessagePlayer, device, payload.chatRoom, newMessage, player);
-
+        const {newMessagePlayerUpdated, newDeviceMessage} = await deviceMessageRepository.createDeviceMessage(payload.sender, newMessagePlayer, device, payload.chatRoom, newMessage, player, payload.senderDevice);
+        if (device === payload.senderDevice._id) {
+          deviceMessage = newDeviceMessage;
+        }
       }
+
     }
 
-    console.log(newMessage.messagePlayer)
-
-    return newMessage;
+    return deviceMessage;
   } catch (error) {
     console.log(error);
     return false;

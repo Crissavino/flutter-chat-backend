@@ -114,7 +114,15 @@ const MongooseChatRoomRepository = class MongooseChatRoomRepository {
     }
 
     async getChatRoomUsers(chatRoomUsers) {
-        return await User.find().populate('devices').where('_id').in(chatRoomUsers).exec();
+        return await User.find()
+            .populate('devices')
+            .populate({
+                path: 'player',
+                populate: 'user'
+            })
+            .where('_id')
+            .in(chatRoomUsers)
+            .exec();
     }
 
     async addPlayerToChatRoom(chatRoom, playerToAdd) {

@@ -61,12 +61,12 @@ module.exports = class OneUserCanCreateAChatRoomCommandHandler {
 
         for (const user of users) {
             const player = user.player;
-            const newMessagePlayer = await this.messagePlayerRepository.createMessagePlayer(senderUser, newMessage, player, chatRoom);
+            const {newMessageUpdated, newMessagePlayer} = await this.messagePlayerRepository.createMessagePlayer(senderUser, newMessage, player, chatRoom);
 
             for (const device of user.devices) {
 
                 // TODO ver como crear los deviceMessages
-                const newDeviceMessage = await this.deviceMessageRepository.createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player);
+                const {newMessagePlayerUpdated, newDeviceMessage} = await this.deviceMessageRepository.createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player);
 
             }
         }

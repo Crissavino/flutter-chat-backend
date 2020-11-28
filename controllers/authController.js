@@ -55,7 +55,9 @@ const crearUsuario = async (req, res = response) => {
 const loginUsuario = async (req, res = response) => {
   const { email, password } = req.body;
   try {
-    const usuarioDB = await User.findOne({ email });
+    const usuarioDB = await User.findOne({ email }).populate({
+      path: 'devices'
+    });
     if (!usuarioDB) {
       return res.status(404).json({
         ok: false,

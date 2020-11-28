@@ -19,10 +19,10 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
             time: newMessage.time,
             text: newMessage.text,
             isLiked: newMessage.isLiked,
-            unread: (player.user == senderUser.id) ? false : true,
-            language: 'en'
+            unread: (player.user._id === senderUser._id),
+            language: newMessage.language
         }).then(async (docMessagePlayer) => {
-            await Message.findByIdAndUpdate(
+            const newMessageUpdated = await Message.findByIdAndUpdate(
                 newMessage,
                 {
                     $push: {
@@ -32,7 +32,15 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
                     }
                 },
                 { new: true, useFindAndModify: false }
-            );
+            ).populate({
+                path: 'messagePlayers',
+                populate: {
+                    path: 'deviceMessages',
+                    match: {
+                        device: senderUser._id
+                    }
+                },
+            });
 
             await Player.findByIdAndUpdate(
                 player,
@@ -46,7 +54,10 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
                 { new: true, useFindAndModify: false }
             );
 
-            return docMessagePlayer;
+            return {
+                newMessageUpdated: newMessageUpdated,
+                newMessagePlayer: docMessagePlayer
+            };
         }).catch(e => console.log(`Error ===== ${e}`));
     }
 

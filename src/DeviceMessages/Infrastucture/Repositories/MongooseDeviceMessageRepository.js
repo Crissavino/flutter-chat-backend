@@ -5,7 +5,7 @@ const MessagePlayer = require('../../../../models/MessagePlayer');
 const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
     constructor() { }
 
-    async createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player) {
+    async createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player, senderDevice) {
         return await DeviceMessage.create({
             sender: senderUser,
             messagePlayer: newMessagePlayer,
@@ -14,10 +14,10 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
             time: newMessage.time,
             text: newMessage.text,
             isLiked: newMessage.isLiked,
-            unread: (player.user == senderUser.id) ? false : true,
-            language: 'en'
+            unread: (player.user._id !== senderUser._id),
+            language: newMessage.language
         }).then(async (docDeviceMessage) => {
-            await MessagePlayer.findByIdAndUpdate(
+            const newMessagePlayerUpdated = await MessagePlayer.findByIdAndUpdate(
                 newMessagePlayer,
                 {
                     $push: {
@@ -43,7 +43,16 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
 
             // return await getMyChatRoomDeviceMessages(chatRoom, device)
 
-            return docDeviceMessage;
+            docDeviceMessage = await DeviceMessage.find(docDeviceMessage)
+                .populate({
+                    path: 'chatRoom',
+                    populate: 'lastMessage'
+                })
+
+            return {
+                newMessagePlayerUpdated: newMessagePlayerUpdated,
+                newDeviceMessage: docDeviceMessage
+            };
         }).catch(e => console.log(`Error ===== ${e}`));
 
     }
