@@ -6,6 +6,8 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
     constructor() { }
 
     async createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player, senderDevice) {
+        console.log(player.user.fullName)
+        console.log(player.user._id !== senderUser._id)
         return await DeviceMessage.create({
             sender: senderUser,
             messagePlayer: newMessagePlayer,
@@ -41,9 +43,7 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
                 { new: true, useFindAndModify: false },
             );
 
-            // return await getMyChatRoomDeviceMessages(chatRoom, device)
-
-            docDeviceMessage = await DeviceMessage.find(docDeviceMessage)
+            docDeviceMessage = await DeviceMessage.findById(docDeviceMessage._id)
                 .populate({
                     path: 'chatRoom',
                     populate: 'lastMessage'
@@ -93,6 +93,34 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
             .sort({ createdAt: 'desc' })
             .exec();
     }
+
+    async getMyUnreadMessage(chatRoom, deviceWhoCall) {
+        return await DeviceMessage.find()
+            .where('chatRoom')
+            .in(chatRoom)
+            .where('device')
+            .in(deviceWhoCall)
+            .where('unread')
+            .equals(true)
+            .sort({ createdAt: 'desc' })
+            .exec();
+    }
+
+    async readMessages(chatRoom, deviceWhoCall) {
+        const query = {
+            'chatRoom': chatRoom,
+            'device': deviceWhoCall
+        }
+        return await DeviceMessage.updateMany(
+            query,
+            {
+                $set: {
+                    'unread': false
+                }
+            }
+        )
+    }
+
 }
 
 module.exports = {

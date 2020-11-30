@@ -49,7 +49,7 @@ const grabarMensaje = async (payload) => {
 
     let newMessage = await messageRepository.createMessage(payload.sender, messageData, payload.chatRoom);
 
-    let deviceMessage;
+    let deviceMessages = [];
 
     for (const player of payload.chatRoom.players) {
 
@@ -58,22 +58,30 @@ const grabarMensaje = async (payload) => {
       for (const device of player.user.devices) {
 
         const {newMessagePlayerUpdated, newDeviceMessage} = await deviceMessageRepository.createDeviceMessage(payload.sender, newMessagePlayer, device, payload.chatRoom, newMessage, player, payload.senderDevice);
-        if (device === payload.senderDevice._id) {
-          deviceMessage = newDeviceMessage;
-        }
+
+        deviceMessages.push(newDeviceMessage);
       }
 
     }
 
-    return deviceMessage;
+    return deviceMessages;
   } catch (error) {
     console.log(error);
     return false;
   }
 };
 
+const readAllMessage = async (payload) => {
+  const messagePlayerRepository = new MongooseMessagePlayerRepository();
+  const deviceMessageRepository = new MongooseDeviceMessageRepository();
+
+  await messagePlayerRepository.readMessages(payload.chatRoom._id, payload.user.player);
+  await deviceMessageRepository.readMessages(payload.chatRoom._id, payload.device._id);
+}
+
 module.exports = {
   usuarioConectado,
   usuarioDesconectado,
   grabarMensaje,
+  readAllMessage
 };

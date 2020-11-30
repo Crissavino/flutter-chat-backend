@@ -12,9 +12,15 @@ module.exports = class GetAllTheirChatRoomsRequest {
             success = false;
         }
 
+        const deviceId = this.request.query.deviceId
+        if (deviceId == null || deviceId === '') {
+            success = false;
+        }
+
         return {
             success: success,
             userId: userId,
+            deviceId: deviceId,
         }
     }
 }

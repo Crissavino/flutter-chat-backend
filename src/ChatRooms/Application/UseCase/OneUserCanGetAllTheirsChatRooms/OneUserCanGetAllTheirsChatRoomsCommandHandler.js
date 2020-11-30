@@ -2,22 +2,39 @@ module.exports = class OneUserCanGetAllTheirsChatRoomsCommandHandler {
     constructor(
         userRepository,
         chatRoomRepository,
+        deviceMessageRepository
     ) {
         this.userRepository = userRepository;
         this.chatRoomRepository = chatRoomRepository;
+        this.deviceMessageRepository = deviceMessageRepository;
     }
 
     async handler(command) {
         const userId = command.getUserId()
+        const deviceId = command.getDeviceId()
+        console.log('deviceId')
+        console.log(deviceId)
 
         const user = await this.userRepository.searchUserById(userId)
 
-        const chatRooms = await this.chatRoomRepository.getUsersChatRooms(user.chatRooms);
+        const chatRooms = await this.chatRoomRepository.getUsersChatRoomsWithDevice(user.chatRooms);
 
+        const chatRoomsModify = [];
+        chatRooms.filter( chatRoom => {
+            chatRoom.lastMessage.messagePlayers.filter( (messagePlayer) => {
+                messagePlayer.deviceMessages.map((deviceMessage) => {
+                    if (deviceMessage.device.deviceId === deviceId) {
+                        chatRoom.lastMessage = deviceMessage;
+                        chatRoomsModify.push(chatRoom);
+                    }
+                })
+            })
+        })
+        
         return {
             'success': true,
             'message': 'All users chat rooms',
-            'chatRooms': chatRooms
+            'chatRooms': chatRoomsModify
         };
 
     }

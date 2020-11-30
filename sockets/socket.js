@@ -5,6 +5,7 @@ const {
   usuarioConectado,
   usuarioDesconectado,
   grabarMensaje,
+  readAllMessage,
     // connectUserToChatRoom
 } = require("../controllers/socketController");
 
@@ -29,21 +30,30 @@ io.on("connection", (client) => {
   // sala uno a uno con el id del usuario
   client.join(uuid);
 
-  client.on('enterChatRoom', async (enterChatRoomData) => {
-    console.log(client.rooms)
+  client.on('enterChatRoom', async (payload) => {
+    // TODO terminar de marcar como leido los mensajes
+    await readAllMessage(payload);
   });
 
   client.on('chatRoomMessage', async (payload) => {
-    const messageDevice = await grabarMensaje(payload);
+    const deviceMessages = await grabarMensaje(payload);
 
     for (const player of payload.chatRoom.players) {
+
       client.broadcast.to(player.user._id).emit('chatRoomMessage', {
         'text': payload.text,
         'de': payload.sender
+      });
+
+      const messageDeviceFromPlayer = deviceMessages.find( (deviceMessage) => {
+        return player.user.devices.filter((device) => device == deviceMessage.device).length > 0;
       })
 
+      console.log('messageDeviceFromPlayer')
+      console.log(messageDeviceFromPlayer)
+
       io.to(player.user._id).emit('chatRoomMessage-recentChats', {
-        'messageDevice': messageDevice[0]
+        'messageDevice': messageDeviceFromPlayer
       })
     }
   });

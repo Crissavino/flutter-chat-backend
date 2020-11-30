@@ -98,6 +98,7 @@ exports.getOneChatRoom = async (req, res) => {
 const getAllMyChatRooms = async (req, res) => {
     const userRepository = new MongooseUserRepository();
     const chatRoomRepository = new MongooseChatRoomRepository();
+    const deviceMessageRepository = new MongooseDeviceMessageRepository();
 
     const requestResponse = new GetAllTheirChatRoomsRequest(req).trigger();
     if (!requestResponse.success) {
@@ -106,11 +107,13 @@ const getAllMyChatRooms = async (req, res) => {
 
     const command = new OneUserCanGetAllTheirsChatRoomsCommand(
         requestResponse.userId,
+        requestResponse.deviceId,
     );
 
     const response = await new OneUserCanGetAllTheirsChatRoomsCommandHandler(
         userRepository,
         chatRoomRepository,
+        deviceMessageRepository
     ).handler(command);
 
     if (!response.success) {

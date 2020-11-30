@@ -19,7 +19,7 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
             time: newMessage.time,
             text: newMessage.text,
             isLiked: newMessage.isLiked,
-            unread: (player.user._id === senderUser._id),
+            unread: (player.user._id !== senderUser._id),
             language: newMessage.language
         }).then(async (docMessagePlayer) => {
             const newMessageUpdated = await Message.findByIdAndUpdate(
@@ -82,6 +82,44 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
             .where('player')
             .in(player)
             .exec();
+    }
+
+    async getMyChatRoomMessagesPlayer(chatRoom, playerWhoCall) {
+        return await MessagePlayer.find()
+            .where('chatRoom')
+            .in(chatRoom)
+            .where('player')
+            .in(playerWhoCall)
+            .sort({ createdAt: 'desc' })
+            .exec();
+    }
+
+    async getMyUnreadMessage(chatRoom, playerWhoCall) {
+        return await MessagePlayer.find()
+            .where('chatRoom')
+            .in(chatRoom)
+            .where('player')
+            .in(playerWhoCall)
+            .where('unread')
+            .equals(true)
+            .sort({ createdAt: 'desc' })
+            .select('_id')
+            .exec();
+    }
+
+    async readMessages(chatRoom, playerWhoCall) {
+        const query = {
+            'chatRoom': chatRoom,
+            'player': playerWhoCall
+        }
+        return await MessagePlayer.updateMany(
+            query,
+            {
+                $set: {
+                    'unread': false
+                }
+            }
+        )
     }
 
     async getMyLastPlayerMessage(newMessage, senderPlayer) {

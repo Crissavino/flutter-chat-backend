@@ -74,6 +74,55 @@ const MongooseChatRoomRepository = class MongooseChatRoomRepository {
             .exec();
     }
 
+    async getUsersChatRoomsWithDevice(userChatRooms) {
+
+        if (userChatRooms.length === 0) {
+            return [];
+        }
+
+        return await ChatRoom.find()
+            .populate({
+                path: 'lastMessage',
+                populate: { path: 'sender' },
+            })
+            .populate({
+                path: 'lastMessage',
+                populate: { path: 'chatRoom' },
+            })
+            .populate({
+                path: 'lastMessage',
+                populate: {
+                    path: 'messagePlayers',
+                    populate: {
+                        path: 'deviceMessages',
+                        populate: {
+                            path: 'device',
+                        }
+                    },
+                },
+            })
+            .populate({
+                path: 'messages',
+                options: {
+                    sort: {
+                        'createdAt': -1
+                    }
+                }
+            })
+            .populate({
+                path: 'players',
+                populate: { path: 'user' },
+            })
+            .sort(
+                {
+                    'lastMessage': -1
+                }
+            )
+            .where('_id')
+            .in(userChatRooms)
+            .exec();
+    }
+
     async attachMessage(chatRoom, newMessage) {
         let messages = chatRoom.messages;
         chatRoom.lastMessage = newMessage.id;
