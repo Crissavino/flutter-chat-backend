@@ -35,8 +35,8 @@ io.on("connection", (client) => {
   });
 
   client.on('leaveChatRoom', async (payload) => {
+    await readAllMessage(payload);
     const chatRoom = await leaveChatRoomData(payload);
-    console.log(chatRoom)
     io.to(payload.user._id).emit('leaveChatRoom-recentChats', {
       'chatRoom': chatRoom,
     })
