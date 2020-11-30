@@ -12,9 +12,6 @@ module.exports = class OneUserCanGetAllTheirsChatRoomsCommandHandler {
     async handler(command) {
         const userId = command.getUserId()
         const deviceId = command.getDeviceId()
-        console.log('deviceId')
-        console.log(deviceId)
-
         const user = await this.userRepository.searchUserById(userId)
 
         const chatRooms = await this.chatRoomRepository.getUsersChatRoomsWithDevice(user.chatRooms);

@@ -6,7 +6,7 @@ const {
   usuarioDesconectado,
   grabarMensaje,
   readAllMessage,
-    // connectUserToChatRoom
+  leaveChatRoomData,
 } = require("../controllers/socketController");
 
 // Mensajes de Sockets
@@ -31,8 +31,15 @@ io.on("connection", (client) => {
   client.join(uuid);
 
   client.on('enterChatRoom', async (payload) => {
-    // TODO terminar de marcar como leido los mensajes
     await readAllMessage(payload);
+  });
+
+  client.on('leaveChatRoom', async (payload) => {
+    const chatRoom = await leaveChatRoomData(payload);
+    console.log(chatRoom)
+    io.to(payload.user._id).emit('leaveChatRoom-recentChats', {
+      'chatRoom': chatRoom,
+    })
   });
 
   client.on('chatRoomMessage', async (payload) => {
@@ -48,9 +55,6 @@ io.on("connection", (client) => {
       const messageDeviceFromPlayer = deviceMessages.find( (deviceMessage) => {
         return player.user.devices.filter((device) => device == deviceMessage.device).length > 0;
       })
-
-      console.log('messageDeviceFromPlayer')
-      console.log(messageDeviceFromPlayer)
 
       io.to(player.user._id).emit('chatRoomMessage-recentChats', {
         'messageDevice': messageDeviceFromPlayer

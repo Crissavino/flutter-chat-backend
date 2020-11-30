@@ -6,8 +6,6 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
     constructor() { }
 
     async createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player, senderDevice) {
-        console.log(player.user.fullName)
-        console.log(player.user._id !== senderUser._id)
         return await DeviceMessage.create({
             sender: senderUser,
             messagePlayer: newMessagePlayer,
@@ -111,6 +109,7 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
             'chatRoom': chatRoom,
             'device': deviceWhoCall
         }
+
         return await DeviceMessage.updateMany(
             query,
             {
@@ -119,6 +118,18 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
                 }
             }
         )
+    }
+
+    async getLastChatRoomMessage(chatRoom, deviceWhoCall){
+        const message =  await DeviceMessage.find()
+            .where('chatRoom')
+            .in(chatRoom)
+            .where('device')
+            .in(deviceWhoCall)
+            .sort({ createdAt: 'desc' })
+            .exec();
+
+        return message[0];
     }
 
 }

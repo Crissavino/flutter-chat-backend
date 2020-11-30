@@ -3,6 +3,7 @@ const Message = require("../models/Message");
 const {MongooseDeviceMessageRepository} = require("../src/DeviceMessages/Infrastucture/Repositories/MongooseDeviceMessageRepository");
 const {MongooseMessagePlayerRepository} = require("../src/MessagePlayers/Infrastucture/Repositories/MongooseMessagePlayerRepository");
 const {MongooseMessageRepository} = require("../src/Messages/Infrastucture/Repositories/MongooseMessageRepository");
+const {MongooseChatRoomRepository} = require("../src/ChatRooms/Infrastucture/Repositories/MongooseChatRoomRepository");
 
 const usuarioConectado = async (uuid = "") => {
   const usuario = await User.findById(uuid);
@@ -77,11 +78,25 @@ const readAllMessage = async (payload) => {
 
   await messagePlayerRepository.readMessages(payload.chatRoom._id, payload.user.player);
   await deviceMessageRepository.readMessages(payload.chatRoom._id, payload.device._id);
+  return await deviceMessageRepository.getLastChatRoomMessage(payload.chatRoom._id, payload.device._id);
+}
+
+const leaveChatRoomData = async (payload) => {
+  const chatRoomRepository = new MongooseChatRoomRepository();
+  const deviceMessageRepository = new MongooseDeviceMessageRepository();
+
+  const chatRoom = await chatRoomRepository.findById(payload.chatRoom._id);
+
+  chatRoom.lastMessage = await deviceMessageRepository.getLastChatRoomMessage(payload.chatRoom._id, payload.device._id)
+
+  return chatRoom;
+
 }
 
 module.exports = {
   usuarioConectado,
   usuarioDesconectado,
   grabarMensaje,
-  readAllMessage
+  readAllMessage,
+  leaveChatRoomData
 };
