@@ -10,7 +10,7 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
         return await MessagePlayer.findById(messagePlayer);
     }
 
-    async createMessagePlayer(senderUser, newMessage, player, chatRoom) {
+    async createMessagePlayer(senderUser, newMessage, player, chatRoom, isUnread) {
         return await MessagePlayer.create({
             sender: senderUser,
             message: newMessage,
@@ -19,7 +19,7 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
             time: newMessage.time,
             text: newMessage.text,
             isLiked: newMessage.isLiked,
-            unread: (player.user._id !== senderUser._id),
+            unread: isUnread,
             language: newMessage.language
         }).then(async (docMessagePlayer) => {
             const newMessageUpdated = await Message.findByIdAndUpdate(

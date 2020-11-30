@@ -12,6 +12,11 @@ module.exports = class CreateChatRoomRequest {
             success = false;
         }
 
+        const currentDevice = this.request.body.currentDevice;
+        if (currentDevice == null) {
+            success = false;
+        }
+
         const groupName = this.request.body.groupName;
         if (groupName == null || groupName === '') {
             success = false;
@@ -25,6 +30,7 @@ module.exports = class CreateChatRoomRequest {
         return {
             success: success,
             currentUser: currentUser,
+            currentDevice: currentDevice,
             groupName: groupName,
             usersToAddToGroup: usersToAddToGroup,
         }

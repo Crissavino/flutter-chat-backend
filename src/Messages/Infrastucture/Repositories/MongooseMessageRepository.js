@@ -15,7 +15,6 @@ const MongooseMessageRepository = class MongooseMessageRepository {
             text: messageData.text,
             isLiked: messageData.isLiked,
             chatRoom: chatRoom,
-            unread: messageData.unread,
             language: messageData.language
         }).then(async (docNewMessage) => {
             await ChatRoom.findByIdAndUpdate(

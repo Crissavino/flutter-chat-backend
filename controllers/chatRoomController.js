@@ -47,6 +47,7 @@ const create = async (req, res) => {
 
     const command = new OneUserCanCreateAChatRoomCommand(
         requestResponse.currentUser,
+        requestResponse.currentDevice,
         requestResponse.usersToAddToGroup,
         requestResponse.groupName
     );

@@ -19,8 +19,6 @@ exports.sendMessage = async (req, res) => {
     const deviceMessageRepository = new MongooseDeviceMessageRepository();
     const deviceRepository = new MongooseDeviceRepository();
 
-    console.log(req.body);
-
     const requestResponse = new SendMessageRequest(req).trigger();
     if (!requestResponse.success) {
         res.json({ "success": false });

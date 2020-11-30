@@ -54,12 +54,15 @@ const grabarMensaje = async (payload) => {
 
     for (const player of payload.chatRoom.players) {
 
-      const {newMessageUpdated, newMessagePlayer} = await messagePlayerRepository.createMessagePlayer(payload.sender, newMessage, player, payload.chatRoom);
+      const {newMessageUpdated, newMessagePlayer} = await messagePlayerRepository.createMessagePlayer(
+          payload.sender, newMessage, player, payload.chatRoom, (player.user._id !== payload.sender._id)
+      );
 
       for (const device of player.user.devices) {
 
-        const {newMessagePlayerUpdated, newDeviceMessage} = await deviceMessageRepository.createDeviceMessage(payload.sender, newMessagePlayer, device, payload.chatRoom, newMessage, player, payload.senderDevice);
-
+        const {newMessagePlayerUpdated, newDeviceMessage} = await deviceMessageRepository.createDeviceMessage(
+            payload.sender, newMessagePlayer, device, payload.chatRoom, newMessage, player, (player.user._id !== payload.sender._id)
+        );
         deviceMessages.push(newDeviceMessage);
       }
 

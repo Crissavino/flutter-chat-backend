@@ -19,6 +19,7 @@ module.exports = class OneUserCanCreateAChatRoomCommandHandler {
 
     async handler(command) {
         const currentUser = command.getCurrentUser()
+        const currentDevice = command.getCurrentDevice()
         const usersToAddToGroup = command.getUsersToAddToGroup()
         const groupName = command.getGroupName()
 
@@ -40,7 +41,6 @@ module.exports = class OneUserCanCreateAChatRoomCommandHandler {
             text: user.fullName + ' ha creado el grupo: ' + chatRoom.name,
             isLiked: false,
             chatRoom: chatRoom,
-            unread: true,
             language: 'es'
         }
 
@@ -61,12 +61,15 @@ module.exports = class OneUserCanCreateAChatRoomCommandHandler {
 
         for (const user of users) {
             const player = user.player;
-            const {newMessageUpdated, newMessagePlayer} = await this.messagePlayerRepository.createMessagePlayer(senderUser, newMessage, player, chatRoom);
+            const {newMessageUpdated, newMessagePlayer} = await this.messagePlayerRepository.createMessagePlayer(
+                senderUser, newMessage, player, chatRoom, (player.user.id !== senderUser.id)
+            );
 
             for (const device of user.devices) {
 
-                // TODO ver como crear los deviceMessages
-                const {newMessagePlayerUpdated, newDeviceMessage} = await this.deviceMessageRepository.createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player);
+                const {newMessagePlayerUpdated, newDeviceMessage} = await this.deviceMessageRepository.createDeviceMessage(
+                    senderUser, newMessagePlayer, device, chatRoom, newMessage, player, (player.user.id !== senderUser.id)
+                );
 
             }
         }

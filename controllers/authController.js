@@ -145,8 +145,6 @@ const create = async (req, res) => {
     res.json({ "success": false , 'message': response.message});
   }
 
-  console.log(response)
-
   res.json( response );
 
 }

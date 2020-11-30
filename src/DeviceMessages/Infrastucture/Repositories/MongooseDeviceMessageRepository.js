@@ -5,7 +5,7 @@ const MessagePlayer = require('../../../../models/MessagePlayer');
 const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
     constructor() { }
 
-    async createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player, senderDevice) {
+    async createDeviceMessage(senderUser, newMessagePlayer, device, chatRoom, newMessage, player, isUnread) {
         return await DeviceMessage.create({
             sender: senderUser,
             messagePlayer: newMessagePlayer,
@@ -14,7 +14,7 @@ const MongooseDeviceMessageRepository = class MongooseDeviceMessageRepository {
             time: newMessage.time,
             text: newMessage.text,
             isLiked: newMessage.isLiked,
-            unread: (player.user._id !== senderUser._id),
+            unread: isUnread,
             language: newMessage.language
         }).then(async (docDeviceMessage) => {
             const newMessagePlayerUpdated = await MessagePlayer.findByIdAndUpdate(
