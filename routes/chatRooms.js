@@ -15,7 +15,7 @@ const MessagePlayer = require('../models/MessagePlayer');
 const DeviceMessage = require('../models/DeviceMessage');
 const ObjectID = require('mongodb').ObjectID;
 const fs = require("fs");
-const { create, getAllMyChatRooms, getAllMyChatRoomMessage } = require("../controllers/chatRoomController");
+const { create, getAllMyChatRooms, getAllMyChatRoomMessage, changeChatRoomName, changeChatRoomDescription } = require("../controllers/chatRoomController");
 const { validarCampos } = require("../middlewares/validar-campos");
 const { validarJWT } = require("../middlewares/validar-jwt");
 const { check } = require("express-validator");
@@ -47,6 +47,28 @@ router.get(
         validarJWT
     ],
     getAllMyChatRoomMessage
+);
+
+router.post(
+    "/editGroupName",
+    [
+        check("chatRoomToEdit", "El chat es obligatorio").not().isEmpty(),
+        check("newChatRoomName", "El nuevo nombre del chat es obligatorio").not().isEmpty(),
+        validarCampos,
+        validarJWT
+    ],
+    changeChatRoomName
+);
+
+router.post(
+    "/editGroupDescription",
+    [
+        check("chatRoomToEdit", "El chat es obligatorio").not().isEmpty(),
+        check("newChatRoomDesc", "La nueva descripcion del chat es obligatorio").not().isEmpty(),
+        validarCampos,
+        validarJWT
+    ],
+    changeChatRoomDescription
 );
 
 // router.post('/addToChatRoom', chatRoomController.addToChatRoom);

@@ -200,7 +200,7 @@ exports.removeFromChatRoom = async (req, res) => {
     res.json({ response });
 }
 
-exports.changeChatRoomName = async (req, res) => {
+const changeChatRoomName = async (req, res) => {
     const chatRoomRepository = new MongooseChatRoomRepository();
 
     const requestResponse = new ChangeChatRoomNameRequest(req).trigger();
@@ -221,7 +221,7 @@ exports.changeChatRoomName = async (req, res) => {
 
 }
 
-exports.changeChatRoomDescription = async (req, res) => {
+const changeChatRoomDescription = async (req, res) => {
     const chatRoomRepository = new MongooseChatRoomRepository();
 
     const requestResponse = new ChangeChatRoomDescriptionRequest(req).trigger();
@@ -245,5 +245,7 @@ exports.changeChatRoomDescription = async (req, res) => {
 module.exports = {
     create,
     getAllMyChatRooms,
-    getAllMyChatRoomMessage
+    getAllMyChatRoomMessage,
+    changeChatRoomName,
+    changeChatRoomDescription
 }

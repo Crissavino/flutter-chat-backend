@@ -1,5 +1,3 @@
-const { API_KEY } = require('../../../utils/constants');
-
 module.exports = class ChangeChatRoomNameRequest {
     constructor(request) {
         this.request = request;
@@ -8,11 +6,6 @@ module.exports = class ChangeChatRoomNameRequest {
     trigger() {
 
         let success = true;
-
-        const apiKey = this.request.query.apiKey
-        if (apiKey !== API_KEY) {
-            success = false;
-        }
 
         const newChatRoomName = this.request.body.newChatRoomName;
         if (newChatRoomName == null) {
