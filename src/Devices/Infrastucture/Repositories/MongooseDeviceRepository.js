@@ -6,7 +6,7 @@ const faker = require('faker');
 const MongooseDeviceRepository = class MongooseDeviceRepository {
     constructor() { }
 
-    async create(userWithPlayer, player, deviceId, type, lang, token) {
+        async create(userWithPlayer, player, deviceId, type, lang, token) {
         return await Device.create({
             user: userWithPlayer,
             deviceId: deviceId,

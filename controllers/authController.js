@@ -53,11 +53,15 @@ const crearUsuario = async (req, res = response) => {
 };
 
 const loginUsuario = async (req, res = response) => {
-  const { email, password } = req.body;
+  const { email, password, deviceId, deviceType, language } = req.body;
   try {
-    const usuarioDB = await User.findOne({ email }).populate({
-      path: 'devices'
-    });
+    const usuarioDB = await User.findOne({ email })
+        .populate({
+          path: 'devices'
+        })
+        .populate({
+          path: 'player'
+        });
     if (!usuarioDB) {
       return res.status(404).json({
         ok: false,
@@ -76,11 +80,24 @@ const loginUsuario = async (req, res = response) => {
 
     const token = await generateJWT(usuarioDB.id);
 
-    res.json({
-      ok: true,
-      usuario: usuarioDB,
-      token,
-    });
+    const isDeviceRegister = usuarioDB.devices.filter((device) => device.deviceId === deviceId).length;
+
+    if (!isDeviceRegister) {
+      const deviceRepository = new MongooseDeviceRepository();
+      const { device, userUpdated, _ } = await deviceRepository.create(usuarioDB, usuarioDB.player, deviceId, deviceType, language, token);
+
+      res.json({
+        ok: true,
+        usuario: userUpdated,
+        token,
+      });
+    } else {
+      res.json({
+        ok: true,
+        usuario: usuarioDB,
+        token,
+      });
+    }
   } catch (error) {
     console.log(error);
     return res.status(500).json({
