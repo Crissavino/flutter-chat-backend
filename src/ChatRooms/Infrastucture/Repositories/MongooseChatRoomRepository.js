@@ -1,9 +1,12 @@
 const ChatRoom = require('../../../../models/ChatRoom');
 const Player = require('../../../../models/Player');
 const User = require('../../../../models/User');
+const Message = require('../../../../models/Message');
+const MessagePlayer = require('../../../../models/MessagePlayer');
+const DeviceMessage = require('../../../../models/DeviceMessage');
 
 const MongooseChatRoomRepository = class MongooseChatRoomRepository {
-    async createChatRoom(groupName, playersToAdd, playerOwner, userRepository) {
+    async createChatRoom(groupName, playersToAdd, playerOwner, userRepository, newMessage) {
         return await ChatRoom.create({
             name: groupName,
             description: '',
@@ -11,7 +14,9 @@ const MongooseChatRoomRepository = class MongooseChatRoomRepository {
             unreadMessages: false,
             image: '',
             players: playersToAdd,
-            owner: playerOwner
+            owner: playerOwner,
+            messages: newMessage,
+            lastMessage: newMessage
         }).then(async (docChatRoom) => {
 
             for (const player of playersToAdd) {
@@ -185,7 +190,44 @@ const MongooseChatRoomRepository = class MongooseChatRoomRepository {
                 }
             },
             { new: true, useFindAndModify: false },
-        );
+        ).populate({
+            path: 'lastMessage',
+            populate: { path: 'sender' },
+        })
+            .populate({
+                path: 'lastMessage',
+                populate: { path: 'chatRoom' },
+            })
+            .populate({
+                path: 'lastMessage',
+                populate: {
+                    path: 'messagePlayers',
+                    populate: {
+                        path: 'deviceMessages',
+                        populate: {
+                            path: 'device',
+                        }
+                    },
+                },
+            })
+            .populate({
+                path: 'messages',
+                options: {
+                    sort: {
+                        'createdAt': -1
+                    }
+                }
+            })
+            .populate({
+                path: 'players',
+                populate: { path: 'user' },
+            })
+            .sort(
+                {
+                    'lastMessage': -1
+                }
+            )
+            .exec();
     }
 
     async removePlayerFromChatRoom(chatRoom, playerToRemove) {

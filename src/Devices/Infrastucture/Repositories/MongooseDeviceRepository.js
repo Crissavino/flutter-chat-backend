@@ -38,7 +38,6 @@ const MongooseDeviceRepository = class MongooseDeviceRepository {
                 { new: true, useFindAndModify: false },
             );
 
-
             return {
                 device: docDevice,
                 userUpdated: userUpdated,

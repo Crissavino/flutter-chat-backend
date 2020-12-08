@@ -19,15 +19,17 @@ module.exports = class OneUserCanGetAllTheirsChatRoomsCommandHandler {
         const chatRoomsModify = [];
         chatRooms.filter( chatRoom => {
             chatRoom.lastMessage.messagePlayers.filter( (messagePlayer) => {
-                messagePlayer.deviceMessages.map((deviceMessage) => {
-                    if (deviceMessage.device.deviceId === deviceId) {
-                        chatRoom.lastMessage = deviceMessage;
-                        chatRoomsModify.push(chatRoom);
-                    }
-                })
+                if (String(messagePlayer.player) === String(user.player._id)) {
+                    messagePlayer.deviceMessages.map((deviceMessage) => {
+                        if (deviceMessage && deviceMessage.device && deviceMessage.device.deviceId === deviceId) {
+                            chatRoom.lastMessage = deviceMessage;
+                            chatRoomsModify.push(chatRoom);
+                        }
+                    })
+                }
             })
         })
-        
+
         return {
             'success': true,
             'message': 'All users chat rooms',

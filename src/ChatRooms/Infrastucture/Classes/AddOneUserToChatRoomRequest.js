@@ -1,5 +1,3 @@
-const { API_KEY } = require('../../../utils/constants');
-
 module.exports = class AddOneUserToChatRoomRequest {
     constructor(request) {
         this.request = request;
@@ -9,13 +7,8 @@ module.exports = class AddOneUserToChatRoomRequest {
 
         let success = true;
 
-        const apiKey = this.request.query.apiKey
-        if (apiKey !== API_KEY) {
-            success = false;
-        }
-
-        const userToAdd = this.request.body.userToAdd;
-        if (userToAdd == null) {
+        const usersToAdd = this.request.body.usersToAdd;
+        if (usersToAdd == null) {
             success = false;
         }
 
@@ -26,7 +19,7 @@ module.exports = class AddOneUserToChatRoomRequest {
 
         return {
             success: success,
-            userToAdd: userToAdd,
+            usersToAdd: usersToAdd,
             chatRoomId: chatRoomId,
         }
     }

@@ -3,6 +3,7 @@ const User = require("../models/User");
 const Device = require("../models/Device");
 const bcrypt = require("bcryptjs");
 const CreateUserRequest = require("../src/Users/Infrastucture/Classes/CreateUserRequest");
+const {MongooseDeviceMessageRepository} = require("../src/DeviceMessages/Infrastucture/Repositories/MongooseDeviceMessageRepository");
 const {MongooseDeviceRepository} = require("../src/Devices/Infrastucture/Repositories/MongooseDeviceRepository");
 const {MongoosePlayerRepository} = require("../src/Players/Infrastucture/Repositories/MongoosePlayerRepository");
 const {MongooseUserRepository} = require("../src/Users/Infrastucture/Repositories/MongooseUserRepository");
@@ -57,10 +58,19 @@ const loginUsuario = async (req, res = response) => {
   try {
     const usuarioDB = await User.findOne({ email })
         .populate({
-          path: 'devices'
+          path: 'devices',
         })
         .populate({
-          path: 'player'
+          path: 'player',
+        })
+        .populate({
+          path: 'chatRooms',
+          populate: {
+            path: 'messages',
+            populate: {
+              path: 'messagePlayers',
+            },
+          },
         });
     if (!usuarioDB) {
       return res.status(404).json({
@@ -84,7 +94,25 @@ const loginUsuario = async (req, res = response) => {
 
     if (!isDeviceRegister) {
       const deviceRepository = new MongooseDeviceRepository();
+      const deviceMessageRepository = new MongooseDeviceMessageRepository();
       const { device, userUpdated, _ } = await deviceRepository.create(usuarioDB, usuarioDB.player, deviceId, deviceType, language, token);
+
+      if (usuarioDB.chatRooms.length > 0) {
+        for (const chatRoom of usuarioDB.chatRooms) {
+
+          for (const message of chatRoom.messages) {
+
+            for (const messagePlayer of message.messagePlayers) {
+              const isMe = String(usuarioDB.player._id) === String(messagePlayer.player._id);
+              if (isMe) {
+                const {_, __} = await deviceMessageRepository.createDeviceMessage(
+                    messagePlayer.sender, messagePlayer, device, chatRoom, message, usuarioDB.player, (String(usuarioDB._id) !== String(messagePlayer.sender._id))
+                );
+              }
+            }
+          }
+        }
+      }
 
       res.json({
         ok: true,

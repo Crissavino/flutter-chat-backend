@@ -92,6 +92,8 @@ const leaveChatRoomData = async (payload) => {
 
   chatRoom.lastMessage = await deviceMessageRepository.getLastChatRoomMessage(payload.chatRoom._id, payload.device._id)
 
+  console.log('chatRoom.lastMessage')
+  console.log(chatRoom.lastMessage)
   return chatRoom;
 
 }

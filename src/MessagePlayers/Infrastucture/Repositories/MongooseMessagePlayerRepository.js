@@ -15,7 +15,7 @@ const MongooseMessagePlayerRepository = class MongooseMessagePlayerRepository {
             sender: senderUser,
             message: newMessage,
             player: player,
-            chatRoom: chatRoom,
+            chatRoom: chatRoom ?? null,
             time: newMessage.time,
             text: newMessage.text,
             isLiked: newMessage.isLiked,

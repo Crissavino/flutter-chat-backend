@@ -10,7 +10,7 @@ const OneUserCanGetOneChatRoomCommandHandler = require('../src/ChatRooms/Applica
 const GetAllTheirChatRoomMessagesRequest = require('../src/ChatRooms/Infrastucture/Classes/GetAllTheirChatRoomMessagesRequest');
 const OneUserCanGetAllTheirChatRoomMessagesCommand = require('../src/ChatRooms/Application/UseCase/OneUserCanGetAllTheirChatRoomMessages/OneUserCanGetAllTheirChatRoomMessagesCommand');
 const OneUserCanGetAllTheirChatRoomMessagesCommandHandler = require('../src/ChatRooms/Application/UseCase/OneUserCanGetAllTheirChatRoomMessages/OneUserCanGetAllTheirChatRoomMessagesCommandHandler');
-const AddOneUserToChatRoomRequest = require('../src/ChatRooms/Infrastucture/Classes/AddOneOserToChatRoomRequest');
+const AddOneUserToChatRoomRequest = require('../src/ChatRooms/Infrastucture/Classes/AddOneUserToChatRoomRequest');
 const OneUserCanAddOtherUserToOneChatRoomCommand = require('../src/ChatRooms/Application/UseCase/OneUserCanAddOtherUserToOneChatRoom/OneUserCanAddOtherUserToOneChatRoomCommand');
 const OneUserCanAddOtherUserToOneChatRoomCommandHandler = require('../src/ChatRooms/Application/UseCase/OneUserCanAddOtherUserToOneChatRoom/OneUserCanAddOtherUserToOneChatRoomCommandHandler');
 const OneUserCanRemoveOtherUserFromOneChatRoomCommand = require('../src/ChatRooms/Application/UseCase/OneUserCanRemoveOtherUserFromOneChatRoom/OneUserCanRemoveOtherUserFromOneChatRoomCommand');
@@ -156,7 +156,7 @@ const getAllMyChatRoomMessage = async (req, res) => {
     res.json({ 'success': response.success, 'message': response.message, 'deviceMessages': response.deviceMessages });
 }
 
-exports.addToChatRoom = async (req, res) => {
+const addToChatRoom = async (req, res) => {
     const userRepository = new MongooseUserRepository();
     const chatRoomRepository = new MongooseChatRoomRepository();
 
@@ -166,7 +166,7 @@ exports.addToChatRoom = async (req, res) => {
     }
 
     const command = new OneUserCanAddOtherUserToOneChatRoomCommand(
-        requestResponse.userToAdd,
+        requestResponse.usersToAdd,
         requestResponse.chatRoomId,
     );
 
@@ -247,5 +247,6 @@ module.exports = {
     getAllMyChatRooms,
     getAllMyChatRoomMessage,
     changeChatRoomName,
-    changeChatRoomDescription
+    changeChatRoomDescription,
+    addToChatRoom
 }
