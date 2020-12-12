@@ -45,6 +45,9 @@ io.on("connection", (client) => {
   client.on('chatRoomMessage', async (payload) => {
     const deviceMessages = await grabarMensaje(payload);
 
+    console.log('payload.sender.fullName')
+    console.log(payload.sender.fullName)
+
     for (const player of payload.chatRoom.players) {
 
       client.broadcast.to(player.user._id).emit('chatRoomMessage', {
@@ -55,6 +58,9 @@ io.on("connection", (client) => {
       const messageDeviceFromPlayer = deviceMessages.find( (deviceMessage) => {
         return player.user.devices.filter((device) => device == deviceMessage.device).length > 0;
       })
+
+      console.log('player.user.fullName')
+      console.log(player.user.fullName)
 
       io.to(player.user._id).emit('chatRoomMessage-recentChats', {
         'messageDevice': messageDeviceFromPlayer
@@ -88,6 +94,37 @@ io.on("connection", (client) => {
     for (const player of payload.chatRoom.players) {
 
       client.broadcast.to(player.user).emit('newChatRoom-recentChats', {
+        'newChatRoom': newChatRoom,
+      })
+
+    }
+  });
+
+  client.on('usersAddedToChatRoom', async (payload) => {
+    const newChatRoom = await ChatRoom.findById(payload.chatRoom._id)
+        .populate({
+          path: 'lastMessage',
+          populate: { path: 'sender' },
+        })
+        .populate({
+          path: 'lastMessage',
+          populate: { path: 'chatRoom' },
+        })
+        .populate({
+          path: 'messages',
+          options: {
+            sort: {
+              'createdAt': -1
+            }
+          }
+        })
+        .populate({
+          path: 'players',
+          populate: { path: 'user' },
+        });
+
+    for (const user of payload.addedUsers) {
+      client.broadcast.to(user._id).emit('usersAddedToChatRoom-recentChats', {
         'newChatRoom': newChatRoom,
       })
 

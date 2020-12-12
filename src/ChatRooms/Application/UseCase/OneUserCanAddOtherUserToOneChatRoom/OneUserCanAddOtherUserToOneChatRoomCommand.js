@@ -1,7 +1,12 @@
 module.exports = class OneUserCanAddOtherUserToOneChatRoomCommand {
-    constructor(usersToAdd, chatRoomId) {
+    constructor(userWhoAdd, usersToAdd, chatRoomId) {
+        this.userWhoAdd = userWhoAdd
         this.usersToAdd = usersToAdd
         this.chatRoomId = chatRoomId
+    }
+
+    getUserWhoAdd() {
+        return this.userWhoAdd;
     }
 
     getUsersToAdd() {

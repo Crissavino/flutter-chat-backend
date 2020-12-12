@@ -17,9 +17,13 @@ module.exports = class OneUserCanGetAllTheirsChatRoomsCommandHandler {
         const chatRooms = await this.chatRoomRepository.getUsersChatRoomsWithDevice(user.chatRooms);
 
         const chatRoomsModify = [];
+        let i = 0
         chatRooms.filter( chatRoom => {
             chatRoom.lastMessage.messagePlayers.filter( (messagePlayer) => {
-                if (String(messagePlayer.player) === String(user.player._id)) {
+                console.log(messagePlayer.player._id)
+                console.log(user.player._id)
+                console.log(String(messagePlayer.player._id) === String(user.player._id))
+                if (String(messagePlayer.player._id) === String(user.player._id)) {
                     messagePlayer.deviceMessages.map((deviceMessage) => {
                         if (deviceMessage && deviceMessage.device && deviceMessage.device.deviceId === deviceId) {
                             chatRoom.lastMessage = deviceMessage;

@@ -7,6 +7,11 @@ module.exports = class AddOneUserToChatRoomRequest {
 
         let success = true;
 
+        const userWhoAdd = this.request.body.userWhoAdd;
+        if (userWhoAdd == null) {
+            success = false;
+        }
+
         const usersToAdd = this.request.body.usersToAdd;
         if (usersToAdd == null) {
             success = false;
@@ -19,6 +24,7 @@ module.exports = class AddOneUserToChatRoomRequest {
 
         return {
             success: success,
+            userWhoAdd: userWhoAdd,
             usersToAdd: usersToAdd,
             chatRoomId: chatRoomId,
         }

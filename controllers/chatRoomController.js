@@ -159,6 +159,9 @@ const getAllMyChatRoomMessage = async (req, res) => {
 const addToChatRoom = async (req, res) => {
     const userRepository = new MongooseUserRepository();
     const chatRoomRepository = new MongooseChatRoomRepository();
+    const messageRepository = new MongooseMessageRepository();
+    const messagePlayerRepository = new MongooseMessagePlayerRepository();
+    const deviceMessageRepository = new MongooseDeviceMessageRepository();
 
     const requestResponse = new AddOneUserToChatRoomRequest(req).trigger();
     if (!requestResponse.success) {
@@ -166,13 +169,17 @@ const addToChatRoom = async (req, res) => {
     }
 
     const command = new OneUserCanAddOtherUserToOneChatRoomCommand(
+        requestResponse.userWhoAdd,
         requestResponse.usersToAdd,
         requestResponse.chatRoomId,
     );
 
     const response = await new OneUserCanAddOtherUserToOneChatRoomCommandHandler(
         userRepository,
-        chatRoomRepository
+        chatRoomRepository,
+        messageRepository,
+        messagePlayerRepository,
+        deviceMessageRepository
     ).handler(command);
 
     res.json({ response });
